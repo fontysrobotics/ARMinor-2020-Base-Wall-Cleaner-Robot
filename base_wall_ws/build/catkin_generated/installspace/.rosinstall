@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/ros/p4_base_wall/base_wall_ws/install/setup.sh
