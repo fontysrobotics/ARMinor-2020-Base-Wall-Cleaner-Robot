@@ -7,6 +7,8 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from time import time
 
+from WebCommunication import Photographer
+
 
 directions = {
         'left':0,
@@ -164,12 +166,16 @@ def follow_the_wall():
 
 def main():
     rospy.init_node('follow_wall')
+    photographer = Photographer()
 
     pub = rospy.Publisher('/cmd_vel', Twist, queue_size =1 )
 
     sub = rospy.Subscriber('/scan',LaserScan, callback_laser_scan)
 
     rate = rospy.Rate(10)
+
+    photographer.CaptureImage()
+
     while not rospy.is_shutdown():
         msg = Twist()
         if state == 0:
