@@ -4,5 +4,5 @@ PROJECT_PKG_CONFIG_INCLUDE_DIRS = "${prefix}/include".split(';') if "${prefix}/i
 PROJECT_CATKIN_DEPENDS = "roscpp;std_msgs;sensor_msgs;geometry_msgs;nav_msgs;tf;gazebo_ros".replace(';', ' ')
 PKG_CONFIG_LIBRARIES_WITH_PREFIX = "".split(';') if "" != "" else []
 PROJECT_NAME = "turtlebot3_gazebo"
-PROJECT_SPACE_DIR = "/home/ros/p4_base_wall/base_wall_ws/install"
+PROJECT_SPACE_DIR = "/usr/local"
 PROJECT_VERSION = "1.2.0"

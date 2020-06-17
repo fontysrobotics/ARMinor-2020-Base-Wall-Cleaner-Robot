@@ -1,12 +1,12 @@
 file(REMOVE_RECURSE
   "CMakeFiles/turtlebot3_example_generate_messages_cpp"
-  "/home/ros/p4_base_wall/base_wall_ws/devel/include/turtlebot3_example/Turtlebot3Feedback.h"
-  "/home/ros/p4_base_wall/base_wall_ws/devel/include/turtlebot3_example/Turtlebot3ActionResult.h"
-  "/home/ros/p4_base_wall/base_wall_ws/devel/include/turtlebot3_example/Turtlebot3Action.h"
-  "/home/ros/p4_base_wall/base_wall_ws/devel/include/turtlebot3_example/Turtlebot3Goal.h"
-  "/home/ros/p4_base_wall/base_wall_ws/devel/include/turtlebot3_example/Turtlebot3Result.h"
-  "/home/ros/p4_base_wall/base_wall_ws/devel/include/turtlebot3_example/Turtlebot3ActionGoal.h"
-  "/home/ros/p4_base_wall/base_wall_ws/devel/include/turtlebot3_example/Turtlebot3ActionFeedback.h"
+  "../../devel/include/turtlebot3_example/Turtlebot3Action.h"
+  "../../devel/include/turtlebot3_example/Turtlebot3ActionResult.h"
+  "../../devel/include/turtlebot3_example/Turtlebot3Feedback.h"
+  "../../devel/include/turtlebot3_example/Turtlebot3Goal.h"
+  "../../devel/include/turtlebot3_example/Turtlebot3ActionFeedback.h"
+  "../../devel/include/turtlebot3_example/Turtlebot3ActionGoal.h"
+  "../../devel/include/turtlebot3_example/Turtlebot3Result.h"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -1,0 +1,8 @@
+prefix=/home/ros/p4_base_wall/ar_base_wall/base_wall_ws/build/devel
+
+Name: turtlebot3_fake
+Description: Description of turtlebot3_fake
+Version: 1.2.0
+Cflags: -I/home/ros/p4_base_wall/ar_base_wall/base_wall_ws/src/turtlebot3_simulations/turtlebot3_fake/include
+Libs: -L${prefix}/lib 
+Requires: roscpp std_msgs sensor_msgs geometry_msgs nav_msgs tf turtlebot3_msgs

@@ -1,8 +1,8 @@
-# Install script for directory: /home/ros/p4_base_wall/base_wall_ws/src/turtlebot3/turtlebot3_navigation
+# Install script for directory: /home/ros/p4_base_wall/ar_base_wall/base_wall_ws/src/turtlebot3/turtlebot3_navigation
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/ros/p4_base_wall/base_wall_ws/install")
+  set(CMAKE_INSTALL_PREFIX "/usr/local")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -38,26 +38,26 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/ros/p4_base_wall/base_wall_ws/build/turtlebot3/turtlebot3_navigation/catkin_generated/installspace/turtlebot3_navigation.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/ros/p4_base_wall/ar_base_wall/base_wall_ws/build/turtlebot3/turtlebot3_navigation/catkin_generated/installspace/turtlebot3_navigation.pc")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/turtlebot3_navigation/cmake" TYPE FILE FILES
-    "/home/ros/p4_base_wall/base_wall_ws/build/turtlebot3/turtlebot3_navigation/catkin_generated/installspace/turtlebot3_navigationConfig.cmake"
-    "/home/ros/p4_base_wall/base_wall_ws/build/turtlebot3/turtlebot3_navigation/catkin_generated/installspace/turtlebot3_navigationConfig-version.cmake"
+    "/home/ros/p4_base_wall/ar_base_wall/base_wall_ws/build/turtlebot3/turtlebot3_navigation/catkin_generated/installspace/turtlebot3_navigationConfig.cmake"
+    "/home/ros/p4_base_wall/ar_base_wall/base_wall_ws/build/turtlebot3/turtlebot3_navigation/catkin_generated/installspace/turtlebot3_navigationConfig-version.cmake"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/turtlebot3_navigation" TYPE FILE FILES "/home/ros/p4_base_wall/base_wall_ws/src/turtlebot3/turtlebot3_navigation/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/turtlebot3_navigation" TYPE FILE FILES "/home/ros/p4_base_wall/ar_base_wall/base_wall_ws/src/turtlebot3/turtlebot3_navigation/package.xml")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/turtlebot3_navigation" TYPE DIRECTORY FILES
-    "/home/ros/p4_base_wall/base_wall_ws/src/turtlebot3/turtlebot3_navigation/launch"
-    "/home/ros/p4_base_wall/base_wall_ws/src/turtlebot3/turtlebot3_navigation/maps"
-    "/home/ros/p4_base_wall/base_wall_ws/src/turtlebot3/turtlebot3_navigation/param"
-    "/home/ros/p4_base_wall/base_wall_ws/src/turtlebot3/turtlebot3_navigation/rviz"
+    "/home/ros/p4_base_wall/ar_base_wall/base_wall_ws/src/turtlebot3/turtlebot3_navigation/launch"
+    "/home/ros/p4_base_wall/ar_base_wall/base_wall_ws/src/turtlebot3/turtlebot3_navigation/maps"
+    "/home/ros/p4_base_wall/ar_base_wall/base_wall_ws/src/turtlebot3/turtlebot3_navigation/param"
+    "/home/ros/p4_base_wall/ar_base_wall/base_wall_ws/src/turtlebot3/turtlebot3_navigation/rviz"
     )
 endif()
 

@@ -1,9 +1,9 @@
 file(REMOVE_RECURSE
   "CMakeFiles/turtlebot3_msgs_generate_messages_eus"
-  "/home/ros/p4_base_wall/base_wall_ws/devel/share/roseus/ros/turtlebot3_msgs/msg/SensorState.l"
-  "/home/ros/p4_base_wall/base_wall_ws/devel/share/roseus/ros/turtlebot3_msgs/msg/VersionInfo.l"
-  "/home/ros/p4_base_wall/base_wall_ws/devel/share/roseus/ros/turtlebot3_msgs/msg/Sound.l"
-  "/home/ros/p4_base_wall/base_wall_ws/devel/share/roseus/ros/turtlebot3_msgs/manifest.l"
+  "../devel/share/roseus/ros/turtlebot3_msgs/msg/VersionInfo.l"
+  "../devel/share/roseus/ros/turtlebot3_msgs/msg/Sound.l"
+  "../devel/share/roseus/ros/turtlebot3_msgs/msg/SensorState.l"
+  "../devel/share/roseus/ros/turtlebot3_msgs/manifest.l"
 )
 
 # Per-language clean rules from dependency scanning.

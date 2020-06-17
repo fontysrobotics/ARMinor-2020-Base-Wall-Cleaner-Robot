@@ -67,14 +67,14 @@ set(turtlebot3_bringup_CONFIG_INCLUDED TRUE)
 
 # set variables for source/devel/install prefixes
 if("FALSE" STREQUAL "TRUE")
-  set(turtlebot3_bringup_SOURCE_PREFIX /home/ros/p4_base_wall/base_wall_ws/src/turtlebot3/turtlebot3_bringup)
-  set(turtlebot3_bringup_DEVEL_PREFIX /home/ros/p4_base_wall/base_wall_ws/devel)
+  set(turtlebot3_bringup_SOURCE_PREFIX /home/ros/p4_base_wall/ar_base_wall/base_wall_ws/src/turtlebot3/turtlebot3_bringup)
+  set(turtlebot3_bringup_DEVEL_PREFIX /home/ros/p4_base_wall/ar_base_wall/base_wall_ws/build/devel)
   set(turtlebot3_bringup_INSTALL_PREFIX "")
   set(turtlebot3_bringup_PREFIX ${turtlebot3_bringup_DEVEL_PREFIX})
 else()
   set(turtlebot3_bringup_SOURCE_PREFIX "")
   set(turtlebot3_bringup_DEVEL_PREFIX "")
-  set(turtlebot3_bringup_INSTALL_PREFIX /home/ros/p4_base_wall/base_wall_ws/install)
+  set(turtlebot3_bringup_INSTALL_PREFIX /usr/local)
   set(turtlebot3_bringup_PREFIX ${turtlebot3_bringup_INSTALL_PREFIX})
 endif()
 
@@ -154,7 +154,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/ros/p4_base_wall/base_wall_ws/install/lib;/home/ros/ROS_assignment/ros_asm1_ws/devel/lib;/home/ros/turtlekin_ws/devel/lib;/opt/ros/melodic/lib)
+    foreach(path /usr/local/lib;/home/ros/ROS_assignment/ros_asm1_ws/devel/lib;/home/ros/turtlekin_ws/devel/lib;/opt/ros/melodic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)

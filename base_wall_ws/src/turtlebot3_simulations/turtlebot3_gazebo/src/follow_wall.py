@@ -7,6 +7,7 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from time import time
 
+plt_errors = []
 
 directions = {
         'left':0,
@@ -23,6 +24,7 @@ state_desc = {
     0: 'finding the wall',
     1: 'turn left',
     2: 'follow the wall',
+    3: 'robot stuck'
 }
 
 state_description = ''
@@ -30,7 +32,8 @@ state_description = ''
 distance_threshold = 1.0
 distance_to_wall_parameter = 0.40
 
-distance_sample_array = []
+lidar_sensor_sample_array = []
+derivative_error_sample_array = []
 
 Kp = 5
 Ki = 0
@@ -38,6 +41,8 @@ Kd = 15
 previous_time = 0
 last_error = 0
 cummulated_error = 0
+
+robot_stuck_counter =0
 
 def callback_laser_scan(msg):
     global directions
@@ -62,11 +67,19 @@ def change_state(new_state):
 def determine_and_change_state():
     global directions
     global state_description
+    global state
+
     robot_speed = Twist()
     linear_x = 0
     angular_z = 0
 
-    if directions['front'] > distance_threshold and directions['fleft'] > distance_threshold and directions['fright'] > distance_threshold:
+    robot_is_stuck = determine_robot_stuck()
+    
+    if robot_is_stuck == True:
+        state_description = 'robot stuck'
+        change_state(3)
+
+    elif directions['front'] > distance_threshold and directions['fleft'] > distance_threshold and directions['fright'] > distance_threshold:
         state_description = 'no wall'
         change_state(0)
 
@@ -121,34 +134,45 @@ def follow_the_wall():
     global previous_time
     global last_error
     global cummulated_error
-    global distance_sample_array
+    global lidar_sensor_sample_array
+    global derivative_error_sample_array
+    global plt_errors
     
     distance_to_wall = min(directions['right'],directions['fright'],directions['front1'])
     msg = Twist()
 
-#filter to average the sensor value
-    distance_sample_array.append(distance_to_wall)
+    #filter to average the sensor value
+    lidar_sensor_sample_array.append(distance_to_wall)
 
-    if len(distance_sample_array) > 10:
-        del distance_sample_array[0]
+    if len(lidar_sensor_sample_array) > 10:
+        del lidar_sensor_sample_array[0]
     
-    filtered_distance = sum(distance_sample_array)/len(distance_sample_array)
+    filtered_distance = sum(lidar_sensor_sample_array)/len(lidar_sensor_sample_array)
 
     current_time = time()
     elapsed_time = current_time - previous_time
 
-#PID controller
+    #PID controller
     error = distance_to_wall_parameter - filtered_distance
-    
+
+    plt_errors.append(error)
+
     cummulated_error += error * elapsed_time
     rate_error = (error - last_error)/elapsed_time
 
+    #Filter deritive value 
+    derivative_error_sample_array.append(rate_error)
+
+    if len(derivative_error_sample_array) > 20:
+        del derivative_error_sample_array[0]
+    
+    filtered_rate_error = sum(derivative_error_sample_array)/len(derivative_error_sample_array)
+
     output_angular = Kp * error + Ki * cummulated_error + Kd * rate_error
-    output_linear = min(max((0.1 - abs(error)),0.01),0.3)
+    output_linear = min(max((0.15 - (2 * abs(error))),0.02),0.1)
 
-    robot_linear_speed = output_linear #min(max((0.2 - (2 * abs(error))),0.01),0.2)
-    robot_angualr_speed = min(max(output_angular,-1.82),1.82)
-
+    robot_linear_speed = output_linear
+    robot_angualr_speed = min(max(output_angular,-1.3),1.3)
 
     msg.linear.x = robot_linear_speed
     msg.angular.z = robot_angualr_speed
@@ -156,13 +180,44 @@ def follow_the_wall():
     last_error = error
     previous_time = current_time
     
-#print out to debug
-    print '\ndistance: %f ,error: %f angular: %f linear: %f' %(distance_to_wall, error, robot_angualr_speed, robot_linear_speed)
+    #print out to debug
+    print '\ndistance: %f ,error: %f angular: %f linear: %f' %(filtered_distance, error, robot_angualr_speed, robot_linear_speed)
     print ' %f * %f + %f * %f + %f * %f' %(Kp, error, Ki, cummulated_error,Kd,rate_error)
+    print ' %f * %f + %f * %f + %f * %f' %(Kp, error, Ki, cummulated_error,Kd,filtered_rate_error)
+
     return msg
 
+def robot_stuck():
+    msg = Twist()
+    msg.linear.x = 0
+    msg.angular.z = 0
+    return msg
+
+def determine_robot_stuck():
+    global directions
+    global state_description
+    global robot_stuck_counter
+
+    minimum_distance = min(directions.values())
+
+    print '\nstuck: %f , min: %f ' %(robot_stuck_counter,minimum_distance)
+
+    if minimum_distance <= 0.20:
+        robot_stuck_counter += 1
+    else:
+        robot_stuck_counter = 0
+
+    if robot_stuck_counter >= 30:
+        
+        return True
+    
+    return False
 
 def main():
+    global plt_errors
+
+    robot_is_stuck = False
+
     rospy.init_node('follow_wall')
 
     pub = rospy.Publisher('/cmd_vel', Twist, queue_size =1 )
@@ -178,10 +233,13 @@ def main():
             msg = follow_the_wall()
         elif state == 2:
             msg = follow_the_wall()
+        elif state == 3:
+            msg = robot_stuck()
 
         else:
             rospy.logerr('Unknown state')
-    
+
+
         pub.publish(msg)
         rate.sleep()
 
