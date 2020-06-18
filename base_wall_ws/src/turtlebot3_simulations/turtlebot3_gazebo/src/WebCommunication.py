@@ -1,9 +1,14 @@
+import logging
 import rospy
 from sensor_msgs.msg import CompressedImage
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 
 class Photographer:
     def __init__(self):
+        logger.debug("Initializing photographer")
         self.image = None
         self.captureImageFlag = False
         self.publisher = rospy.Publisher("photographer", CompressedImage)
@@ -13,6 +18,7 @@ class Photographer:
         #self.listener.spin()
 
     def CaptureImage(self):
+        logger.debug("Capturing image")
         self.captureImageFlag = True
         while not self.image:
             self.rate.sleep()
