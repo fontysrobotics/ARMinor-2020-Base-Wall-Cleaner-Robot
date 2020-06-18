@@ -138,7 +138,7 @@ def follow_the_wall():
     global cummulated_error
     global lidar_sensor_sample_array
     global derivative_error_sample_array
-    global plt_errors
+
     
     distance_to_wall = min(directions['right'],directions['fright'],directions['front1'])
     msg = Twist()
@@ -156,8 +156,6 @@ def follow_the_wall():
 
     #PID controller
     error = distance_to_wall_parameter - filtered_distance
-
-    plt_errors.append(error)
 
     cummulated_error += error * elapsed_time
     rate_error = (error - last_error)/elapsed_time
@@ -216,7 +214,6 @@ def determine_robot_stuck():
     return False
 
 def main():
-    global plt_errors
 
     robot_is_stuck = False
 
