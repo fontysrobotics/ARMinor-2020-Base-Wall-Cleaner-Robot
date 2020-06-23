@@ -1,6 +1,7 @@
 import logging
 import rospy
 from sensor_msgs.msg import CompressedImage
+from std_msgs.msg import String
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -8,7 +9,7 @@ logger.setLevel(logging.DEBUG)
 
 class Photographer:
     def __init__(self):
-        logger.debug("Initializing photographer")
+        print("Initializing photographer")
         self.image = None
         self.captureImageFlag = False
         self.publisher = rospy.Publisher("photographer", CompressedImage)
@@ -18,7 +19,7 @@ class Photographer:
         #self.listener.spin()
 
     def CaptureImage(self):
-        logger.debug("Capturing image")
+        print("Capturing image")
         self.captureImageFlag = True
         while not self.image:
             self.rate.sleep()
@@ -29,3 +30,17 @@ class Photographer:
     def _imageCallback(self, data):
         if self.captureImageFlag:
             self.image = data
+
+class WebController:
+    def __init__(self):
+        self.listener = rospy.Subscriber("/chatter", String, self._commandCallback)
+        self.cur_command = None
+
+    def GetCommand(self):
+        return self.cur_command
+
+    def _commandCallback(self, data):
+        if self.cur_command != data.data:
+            print("Executing command %s" % data.data)
+            self.cur_command = data.data
+
