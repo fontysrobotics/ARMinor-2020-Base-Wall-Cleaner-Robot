@@ -9,6 +9,7 @@ from time import time
 
 
 from WebCommunication import Photographer
+from WebCommunication import WebController
 
 
 directions = {
@@ -58,7 +59,6 @@ def callback_laser_scan(msg):
         'left':min(min(msg.ranges[54:90]),10),
     }
 
-    determine_and_change_state()
 
 def change_state(new_state):
     global state, state_desc
@@ -181,9 +181,9 @@ def follow_the_wall():
     previous_time = current_time
     
     #print out to debug
-    print '\ndistance: %f ,error: %f angular: %f linear: %f' %(filtered_distance, error, robot_angualr_speed, robot_linear_speed)
-    print ' %f * %f + %f * %f + %f * %f' %(Kp, error, Ki, cummulated_error,Kd,rate_error)
-    print ' %f * %f + %f * %f + %f * %f' %(Kp, error, Ki, cummulated_error,Kd,filtered_rate_error)
+    #print '\ndistance: %f ,error: %f angular: %f linear: %f' %(filtered_distance, error, robot_angualr_speed, robot_linear_speed)
+    #print ' %f * %f + %f * %f + %f * %f' %(Kp, error, Ki, cummulated_error,Kd,rate_error)
+    #print ' %f * %f + %f * %f + %f * %f' %(Kp, error, Ki, cummulated_error,Kd,filtered_rate_error)
 
     return msg
 
@@ -200,7 +200,7 @@ def determine_robot_stuck():
 
     minimum_distance = min(directions.values())
 
-    print '\nstuck: %f , min: %f ' %(robot_stuck_counter,minimum_distance)
+    #print '\nstuck: %f , min: %f ' %(robot_stuck_counter,minimum_distance)
 
     if minimum_distance <= 0.20:
         robot_stuck_counter += 1
@@ -219,31 +219,40 @@ def main():
 
     rospy.init_node('follow_wall')
     photographer = Photographer()
+    webcontroller = WebController()
 
     pub = rospy.Publisher('/cmd_vel', Twist, queue_size =1 )
-
     sub = rospy.Subscriber('/scan',LaserScan, callback_laser_scan)
 
     rate = rospy.Rate(10)
 
+    cur_command = None
+
     photographer.CaptureImage()
 
     while not rospy.is_shutdown():
-        msg = Twist()
-        if state == 0:
-            msg = find_wall()
-        elif state == 1:
-            msg = follow_the_wall()
-        elif state == 2:
-            msg = follow_the_wall()
-        elif state == 3:
-            msg = robot_stuck()
+        cur_command = webcontroller.GetCommand()
+        if cur_command == "stop":
+            msg = Twist()
+            msg.linear.x = 0.0
+            msg.angular.z = 0.0
+            cur_command = "none"
+            pub.publish(msg)
+        elif cur_command == "start":
+            determine_and_change_state()
+            msg = Twist()
+            if state == 0:
+                msg = find_wall()
+            elif state == 1:
+                msg = follow_the_wall()
+            elif state == 2:
+                msg = follow_the_wall()
+            elif state == 3:
+                msg = robot_stuck()
+            else:
+                rospy.logerr('Unknown state')
+            pub.publish(msg)
 
-        else:
-            rospy.logerr('Unknown state')
-
-
-        pub.publish(msg)
         rate.sleep()
 
     rospy.spin()
