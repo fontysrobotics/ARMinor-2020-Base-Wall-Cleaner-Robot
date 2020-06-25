@@ -5,6 +5,14 @@
 
 <script type="text/javascript" src="http://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
 <script type="text/javascript" src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+ <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+ <script src='https://kit.fontawesome.com/a076d05399.js'></script>
+
+<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/index.css')}}">
+
+<script type="text/javascript" src="{{url_for('static', filename='js/main.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/chatter.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/photographer.js')}}"></script>
 
 </head>
 
@@ -17,32 +25,37 @@
 
 <div id="content" style="display:initial;">
 
-<h1>Cleaner bot web interface</h1>
-<div style="display:initial;">
-<button onclick="SendMessageStart();">
-    Start
-</button>
+    <div id="title_bar">
+        <h1>Base wall cleaner</h1>
+    </div>
 
-<button onclick="SendMessageStop();">
-    Stop
-</button>
+    <div id="control_panel">
+        <h1>Controls</h1>
+        <button onclick="SendMessageStart();" style="background:#c3f4b7;">
+            <h1><i class="fas fa-sign-out-alt"></i> Start</h1>
+        </button>
 
-<button id="GetImageButton" onclick="GetImageData();">
-Get Image data
-</button>
-<h1>Map</h1>
-<p id="info"></p>
-<br/>
+        <button onclick="SendMessageStop();" style="background:#df7676;">
+            <h1><i class="fas fa-exclamation-triangle"></i> Stop</h1>
+        </button>
+    </div>
+    <div id="status_bar">
+        <h1 style="display:inline;">Status:</h1>
+        <h2 id="status_msg" style="display:inline;"></h2>
+    </div>
 
-<canvas id="canvas" style="background:black;"></canvas>
+    <!--
+    <div style="display:initial;">
+        <h1>Map</h1>
+        <h2 id="info"></h2>
+        <br/>
+
+        <canvas id="canvas" style="background:black;"></canvas>
+    </div>
+    -->
 </div>
-</div>
+<h1>Image</h1>
+<img id="img" style="width:500px"></img>
 
-<img id="img" style="width:1000px"></img>
-
-<script type="text/javascript" src="{{url_for('static', filename='js/main.js')}}">
-<script type="text/javascript" src="{{url_for('static', filename='js/chatter.js')}}">
-<script type="text/javascript" src="{{url_for('static', filename='js/photographer.js')}}">
-</script>
 </body>
 </html>
