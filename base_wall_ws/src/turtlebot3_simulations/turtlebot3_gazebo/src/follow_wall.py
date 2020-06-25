@@ -227,8 +227,8 @@ def main():
     rate = rospy.Rate(10)
 
     cur_command = None
+    sent_pic = False
 
-    photographer.CaptureImage()
 
     while not rospy.is_shutdown():
         cur_command = webcontroller.GetCommand()
@@ -238,7 +238,11 @@ def main():
             msg.angular.z = 0.0
             cur_command = "none"
             pub.publish(msg)
+            if not sent_pic:
+                photographer.CaptureImage()
+                sent_pic = True
         elif cur_command == "start":
+            sent_pic = False
             determine_and_change_state()
             msg = Twist()
             if state == 0:
