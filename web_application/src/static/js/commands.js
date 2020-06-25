@@ -1,6 +1,6 @@
 var cmdChatter = new ROSLIB.Topic({
     ros : ros,
-    name : '/chatter',
+    name : '/commands',
     messageType : 'std_msgs/String'
 });
 

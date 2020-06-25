@@ -33,7 +33,7 @@ class Photographer:
 
 class WebController:
     def __init__(self):
-        self.listener = rospy.Subscriber("/chatter", String, self._commandCallback)
+        self.command_listener = rospy.Subscriber("/commands", String, self._commandCallback)
         self.cur_command = None
 
     def GetCommand(self):
