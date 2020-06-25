@@ -1,17 +1,61 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
+<html>
 <head>
-    <title>Cleanerbot</title>
-</head>
-<body>
-    <a href="/one">
-    <button>
-        <h1>One</h1>
-    </button>
-    <a href="/two">
-    <button>
-        <h1>Two</h1>
-    </button>
+<meta charset="utf-8" />
 
-    {{ data }}
-    </a>
+<script type="text/javascript" src="http://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+<script type="text/javascript" src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+ <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+ <script src='https://kit.fontawesome.com/a076d05399.js'></script>
+
+<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/index.css')}}">
+
+<script type="text/javascript" src="{{url_for('static', filename='js/main.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/chatter.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/photographer.js')}}"></script>
+
+</head>
+
+<body style="font-family:sans-serif;">
+
+<div id="loadscreen" style="margin:auto;width:50%;text-align:center;margin-top:20%;display:none;">
+    <img src="{{url_for('static', filename='res/loading.gif')}}"/>
+    <h1 style="font-family:sans-serif;">Loading...</h1>
+</div>
+
+<div id="content" style="display:initial;">
+
+    <div id="title_bar">
+        <h1>Base wall cleaner</h1>
+    </div>
+
+    <div id="control_panel">
+        <h1>Controls</h1>
+        <button onclick="SendMessageStart();" style="background:#c3f4b7;">
+            <h1><i class="fas fa-sign-out-alt"></i> Start</h1>
+        </button>
+
+        <button onclick="SendMessageStop();" style="background:#df7676;">
+            <h1><i class="fas fa-exclamation-triangle"></i> Stop</h1>
+        </button>
+    </div>
+    <div id="status_bar">
+        <h1 style="display:inline;">Status:</h1>
+        <h2 id="status_msg" style="display:inline;"></h2>
+    </div>
+
+    <!--
+    <div style="display:initial;">
+        <h1>Map</h1>
+        <h2 id="info"></h2>
+        <br/>
+
+        <canvas id="canvas" style="background:black;"></canvas>
+    </div>
+    -->
+</div>
+<h1>Image</h1>
+<img id="img" style="width:500px"></img>
+
 </body>
+</html>
