@@ -34,7 +34,11 @@ class Photographer:
 class WebController:
     def __init__(self):
         self.command_listener = rospy.Subscriber("/commands", String, self._commandCallback)
+        self.status_publisher = rospy.Publisher("/status", String, queue_size=10)
         self.cur_command = None
+
+    def SendStatus(self, msg):
+        self.status_publisher.publish(msg)
 
     def GetCommand(self):
         return self.cur_command
