@@ -22,27 +22,20 @@ def main():
     rospy.init_node('follow_wall')
     photographer = Photographer()
     webcontroller = WebController()
-    test_robot = CleaningRobot()
+    test_robot = CleaningRobot(webcontroller, photographer)
 
-    #pub = rospy.Publisher('/cmd_vel', Twist, queue_size =1 )
-    #sub = rospy.Subscriber('/scan',LaserScan, callback_laser_scan)
-
-    #robot_speed = Twist()
     rate = rospy.Rate(10)
 
     cur_command = None
-    sent_pic = False
-
-    #photographer.CaptureImage()
 
     while not rospy.is_shutdown():
-        #cur_command = webcontroller.GetCommand()
+        cur_command = webcontroller.GetCommand()
 
-        #state_work()
-        #pub.publish(robot_speed)
-
-        test_robot.state_work()
-
+        if cur_command == "start":
+            test_robot.state_work()
+        else:
+            continue
+        
         rate.sleep()
 
     rospy.spin()

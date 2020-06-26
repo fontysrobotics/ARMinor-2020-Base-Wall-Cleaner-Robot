@@ -7,8 +7,11 @@ from time import time
 from PIDController import PIDController
 
 class CleaningRobot:
-    def __init__(self):
+    def __init__(self, webcontroller, photographer):
         print("Initializing CleaningRobot")
+
+        self.webcontroller = webcontroller
+        self.photographer = photographer
 
         self.PID_controller = PIDController()
         self.cur_command = "start"
@@ -37,6 +40,9 @@ class CleaningRobot:
         self.publisher = rospy.Publisher('/cmd_vel', Twist, queue_size =1 )
         self.subscriber = rospy.Subscriber('/scan',LaserScan, self.callback_laser_scan)
 
+    def _sendStatusMessage(self, msg):
+        self.webcontroller.SendStatus(msg)
+
     def callback_laser_scan(self,msg):
         self.directions = {
             'right':min(min(msg.ranges[270:305]),10),
@@ -59,18 +65,20 @@ class CleaningRobot:
                 #start finding wall
                 print '\nstart command received to find wall' 
                 self.state = 1
-
+                self._sendStatusMessage(self.state_desc[self.state])
         
         #find wall state
         elif self.state == 1:
             if self.cur_command == "stop":
                 #change to idle
                 self.state = 0
+                self._sendStatusMessage(self.state_desc[self.state])
                 print '\nstop command received, to idle' 
             elif self.directions['front'] > self.distance_threshold and self.directions['fleft'] > self.distance_threshold and self.directions['fright'] < self.distance_threshold:
                 #change to follow wall
                 print '\nto follow wall' 
                 self.state = 2
+                self._sendStatusMessage(self.state_desc[self.state])
             else:
                 print '\nfinding wall' 
                 robot_speed.linear.x = 0.1
@@ -84,6 +92,7 @@ class CleaningRobot:
                 #change to idle
                 print '\nstop command received, to idle' 
                 self.state = 0
+                self._sendStatusMessage(self.state_desc[self.state])
             
             else:
                 print '\nfollowing wall' 
