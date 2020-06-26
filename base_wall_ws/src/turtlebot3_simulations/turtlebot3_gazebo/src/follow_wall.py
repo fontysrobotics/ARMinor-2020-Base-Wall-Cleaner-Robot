@@ -26,6 +26,7 @@ def main():
     rate = rospy.Rate(10)
 
     cur_command = None
+    sent_pic = False
 
     #photographer.CaptureImage()
 
