@@ -30,8 +30,10 @@ class CleaningRobot:
             'right':0,
         }
 
-        self.distance_threshold = 0.40
+        self.WALL_DETECTION_DISTANCE = 0.7
 
+        self.STUCK_DETECTION_DISTANCE = 0.20
+        self.STUCK_MAX_COUNTER = 30
         self.robot_stuck_counter = 0
 
         self.publisher = rospy.Publisher('/cmd_vel', Twist, queue_size =1 )
@@ -48,10 +50,31 @@ class CleaningRobot:
             'left':min(min(msg.ranges[54:90]),10),
         }
 
+    def wall_is_found(self):
+        if self.directions['right'] < self.WALL_DETECTION_DISTANCE or self.directions['fright'] < self.WALL_DETECTION_DISTANCE or self.directions['front1'] < self.WALL_DETECTION_DISTANCE or self.directions['front2'] < self.WALL_DETECTION_DISTANCE:
+            return True
+        
+        return False
+
+    def robot_is_stuck(self):
+
+        minimum_distance = min(self.directions.values())
+
+        print '\nstuck counter: %f , minimun distance: %f ' %(self.robot_stuck_counter,minimum_distance)
+
+        if minimum_distance <= self.STUCK_DETECTION_DISTANCE:
+            self.robot_stuck_counter += 1
+        else:
+            self.robot_stuck_counter = 0
+
+        if self.robot_stuck_counter >= self.STUCK_MAX_COUNTER:
+            
+            return True
+        
+        return False
+
     def state_work(self):
         robot_speed = Twist()
-        #robot_speed.linear.x=0
-        #robot_speed.angular.z=0
 
         #idle state
         if self.state == 0:
@@ -60,14 +83,25 @@ class CleaningRobot:
                 print '\nstart command received to find wall' 
                 self.state = 1
 
-        
         #find wall state
         elif self.state == 1:
             if self.cur_command == "stop":
                 #change to idle
+                print '\nstop command received, to idle'
+                robot_speed.linear.x = 0
+                robot_speed.angular.z = 0
+                self.publisher.publish(robot_speed) 
                 self.state = 0
-                print '\nstop command received, to idle' 
-            elif self.directions['front'] > self.distance_threshold and self.directions['fleft'] > self.distance_threshold and self.directions['fright'] < self.distance_threshold:
+
+            
+            elif self.robot_is_stuck():
+                print '\nrobot is stuck, to idle' 
+                robot_speed.linear.x = 0
+                robot_speed.angular.z = 0
+                self.publisher.publish(robot_speed)
+                self.state = 0
+
+            elif self.wall_is_found():
                 #change to follow wall
                 print '\nto follow wall' 
                 self.state = 2
@@ -75,16 +109,26 @@ class CleaningRobot:
                 print '\nfinding wall' 
                 robot_speed.linear.x = 0.1
                 robot_speed.angular.z = -0.5
-                print '\nfleft: %f ,front: %f ,fright: %f ' %(self.directions['front'], self.directions['fleft'], self.directions['fright'])
                 self.publisher.publish(robot_speed)
+                print '\nfleft: %f ,front: %f ,fright: %f ' %(self.directions['front'], self.directions['fleft'], self.directions['fright'])
 
         #follow wall state
         elif self.state == 2:
             if self.cur_command == "stop":
                 #change to idle
                 print '\nstop command received, to idle' 
+                robot_speed.linear.x = 0
+                robot_speed.angular.z = 0
+                self.publisher.publish(robot_speed)
                 self.state = 0
-            
+
+            elif self.robot_is_stuck():
+                print '\nrobot is stuck, to idle' 
+                robot_speed.linear.x = 0
+                robot_speed.angular.z = 0
+                self.publisher.publish(robot_speed)
+                self.state = 0
+
             else:
                 print '\nfollowing wall' 
                 distance_to_wall = min(self.directions['right'],self.directions['fright'],self.directions['front1'])
@@ -92,6 +136,9 @@ class CleaningRobot:
                 self.publisher.publish(robot_speed)
 
         else:
-            print '\nunknown state' 
-            x = 5
+            robot_speed.linear.x = 0
+            robot_speed.angular.z = 0
+            self.publisher.publish(robot_speed)
+            self.state = 0
+            print '\nunknown state, to idle' 
 

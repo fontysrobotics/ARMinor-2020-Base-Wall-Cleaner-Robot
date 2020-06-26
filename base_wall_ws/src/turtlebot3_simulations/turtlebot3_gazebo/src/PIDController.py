@@ -14,7 +14,7 @@ class PIDController:
         self.Kp = 5
         self.Ki = 0
         self.Kd = 15
-        self.set_point = 0.40
+        self.SET_POINT = 0.40
         self.previous_time = 0
         self.last_error = 0
         self.cummulated_error = 0
@@ -34,7 +34,7 @@ class PIDController:
         elapsed_time = current_time - self.previous_time
 
         #PID controller
-        error = self.set_point - filtered_error
+        error = self.SET_POINT - filtered_error
 
         self.cummulated_error += error * elapsed_time
         error_derivative = (error - self.last_error)/elapsed_time
