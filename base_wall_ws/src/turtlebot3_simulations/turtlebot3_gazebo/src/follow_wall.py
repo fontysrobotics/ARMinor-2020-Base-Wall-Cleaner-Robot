@@ -17,7 +17,6 @@ def main():
     global cur_command
 
     cur_command = "start"
-    robot_is_stuck = False
 
     rospy.init_node('follow_wall')
     photographer = Photographer()
