@@ -7,5 +7,5 @@ var status_listener = new ROSLIB.Topic(
 
 status_listener.subscribe(function(message)
 {
-	document.getElementById("status_msg").innerText = status_message;
+	document.getElementById("status_msg").innerText = message.data;
 });
