@@ -7,11 +7,12 @@ from time import time
 from PIDController import PIDController
 
 class CleaningRobot:
-    def __init__(self, webcontroller, photographer):
+    def __init__(self, webcontroller, photographer, cleaner_side="right"):
         print("Initializing CleaningRobot")
 
         self.webcontroller = webcontroller
         self.photographer = photographer
+        self.cleaner_side = cleaner_side
 
         self.PID_controller = PIDController()
         self.cur_command = "start"
@@ -57,8 +58,18 @@ class CleaningRobot:
         }
 
     def wall_is_found(self):
-        if self.directions['right'] < self.WALL_DETECTION_DISTANCE or self.directions['fright'] < self.WALL_DETECTION_DISTANCE or self.directions['front1'] < self.WALL_DETECTION_DISTANCE or self.directions['front2'] < self.WALL_DETECTION_DISTANCE:
-            return True
+        if self.cleaner_side == "right":
+            if self.directions['right'] < self.WALL_DETECTION_DISTANCE\
+            or self.directions['fright'] < self.WALL_DETECTION_DISTANCE\
+            or self.directions['front1'] < self.WALL_DETECTION_DISTANCE\
+            or self.directions['front2'] < self.WALL_DETECTION_DISTANCE:
+                return True
+        elif self.cleaner_side == "left":
+            if self.directions['left'] < self.WALL_DETECTION_DISTANCE\
+            or self.directions['fleft'] < self.WALL_DETECTION_DISTANCE\
+            or self.directions['front1'] < self.WALL_DETECTION_DISTANCE\
+            or self.directions['front2'] < self.WALL_DETECTION_DISTANCE:
+                return True
         
         return False
 
@@ -82,6 +93,14 @@ class CleaningRobot:
     def state_work(self):
         robot_speed = Twist()
 
+        if self.cur_command == "stop":
+            print '\nstop command received, to idle'
+            robot_speed.linear.x = 0
+            robot_speed.angular.z = 0
+            self.publisher.publish(robot_speed) 
+            self.state = 0
+            self._sendStatusMessage(self.state_desc[self.state])
+
         #idle state
         if self.state == 0:
             if self.cur_command == "start":
@@ -92,15 +111,7 @@ class CleaningRobot:
 
         #find wall state
         elif self.state == 1:
-            if self.cur_command == "stop":
-                #change to idle
-                print '\nstop command received, to idle'
-                robot_speed.linear.x = 0
-                robot_speed.angular.z = 0
-                self.publisher.publish(robot_speed) 
-                self.state = 0
-            
-            elif self.robot_is_stuck():
+            if self.robot_is_stuck():
                 print '\nrobot is stuck, to idle' 
                 robot_speed.linear.x = 0
                 robot_speed.angular.z = 0
@@ -122,15 +133,7 @@ class CleaningRobot:
 
         #follow wall state
         elif self.state == 2:
-            if self.cur_command == "stop":
-                #change to idle
-                print '\nstop command received, to idle' 
-                robot_speed.linear.x = 0
-                robot_speed.angular.z = 0
-                self.publisher.publish(robot_speed)
-                self.state = 0
-
-            elif self.robot_is_stuck():
+            if self.robot_is_stuck():
                 print '\nrobot is stuck, to idle' 
                 robot_speed.linear.x = 0
                 robot_speed.angular.z = 0
@@ -140,8 +143,13 @@ class CleaningRobot:
 
             else:
                 print '\nfollowing wall' 
-                distance_to_wall = min(self.directions['right'],self.directions['fright'],self.directions['front1'])
+                if self.cleaner_side == "right":
+                    distance_to_wall = min(self.directions['right'],self.directions['fright'],self.directions['front1'])
+                elif self.cleaner_side == "left":
+                    distance_to_wall = min(self.directions['left'],self.directions['fleft'],self.directions['front2'])
                 robot_speed = self.PID_controller.calculate_speed(distance_to_wall)
+                if self.cleaner_side == "left":
+                    robot_speed.angular.z = robot_speed.angular.z * -1
                 self.publisher.publish(robot_speed)
 
         else:
@@ -150,4 +158,5 @@ class CleaningRobot:
             self.publisher.publish(robot_speed)
             self.state = 0
             print '\nunknown state, to idle' 
+            self._sendStatusMessage(self.state_desc[self.state])
 
