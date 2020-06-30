@@ -10,13 +10,14 @@ class CleaningRobot:
     def __init__(self):
         print("Initializing CleaningRobot")
 
-        self.FOLLOWING_DISTANCE_SET_POINT       = 0.40
-        self.OBSTACLE_DETECTION_SET_POINT_CLOSE = 0.35
-        self.OBSTACLE_DETECTION_SET_POINT_FAR   = 0.50
+        self.FOLLOW_WALL_SET_POINT              = 0.40
+        self.FOLLOW_WALL_SET_POINT_START        = 0.35
+        self.FOLLOW_WALL_SET_POINT_END          = 0.50
+        self.OBSTACLE_DETECTION_SET_POINT_FAR   = 1.00
         self.STUCK_DETECTION_DISTANCE           = 0.20
         self.STUCK_MAX_COUNTER                  = 30
 
-        self.PID_controller                     = PIDController(self.FOLLOWING_DISTANCE_SET_POINT)
+        self.PID_controller                     = PIDController(self.FOLLOW_WALL_SET_POINT)
         self.current_speed                      = Twist()
         self.cur_command                        = "start"
         self.previous_searching_time            = 0
@@ -31,13 +32,13 @@ class CleaningRobot:
         }
 
         self.directions = {
-            'left':0,
-            'fleft':0,
-            'front1':0,
-            'front2':0,
-            'front':0,
-            'fright':0,
-            'right':0,
+            'left':10,
+            'fleft':10,
+            'front1':10,
+            'front2':10,
+            'front':10,
+            'fright':10,
+            'right':10,
         }
 
         self.publisher = rospy.Publisher('/cmd_vel', Twist, queue_size =1 )
@@ -96,22 +97,25 @@ class CleaningRobot:
 
         if current_time - self.previous_searching_time >= increment_delay:
             self.current_speed.linear.x += search_speed_increment
+            self.previous_searching_time = current_time
 
+        self.current_speed.angular.z = 0.2
         self.current_speed.linear.x = min(self.current_speed.linear.x,search_speed_max)
 
 
     def finding_wall(self,distance_set_point):
         #detecting wall position
         #act based on the position
-        if self._wall_at_right(distance_set_point):
+
+        if self._wall_at_front(distance_set_point):
+            #at far front, approaching slowly
+            self.current_speed.linear.x  = 0.1
+            self.current_speed.angular.z = 0     
+
+        elif self._wall_at_right(distance_set_point):
             #at far right, rotate right
             self.current_speed.linear.x  = 0
             self.current_speed.angular.z = -0.1
-
-        elif self._wall_at_front(distance_set_point):
-            #at far front, approaching slowly
-            self.current_speed.linear.x  = 0.05
-            self.current_speed.angular.z = 0          
 
         elif self._wall_at_left(distance_set_point):
             #at far left, rotate left
@@ -119,7 +123,7 @@ class CleaningRobot:
             self.current_speed.angular.z = 0.1  
         else:
             #no obstacles, vortex searching
-            vortex_searching(10,0.1,1.0)
+            self.vortex_searching(10,0.05,1.0)
 
     def state_work(self):
 
@@ -148,13 +152,13 @@ class CleaningRobot:
                 self.publisher.publish(self.current_speed)
                 self.state = 0
 
-            elif self.wall_is_found():
+            elif self.wall_is_found(self.FOLLOW_WALL_SET_POINT_START):
                 #change to follow wall
                 print '\nto follow wall' 
                 self.state = 2
             else:
                 print '\nfinding wall' 
-                self.finding_wall(OBSTACLE_DETECTION_SET_POINT_FAR)
+                self.finding_wall(self.OBSTACLE_DETECTION_SET_POINT_FAR)
                 self.publisher.publish(self.current_speed)
                 #print '\nfleft: %f ,front: %f ,fright: %f ' %(self.directions['front'], self.directions['fleft'], self.directions['fright'])
 
@@ -187,4 +191,7 @@ class CleaningRobot:
             self.publisher.publish(self.current_speed) 
             self.state = 0
             print '\nunknown state, to idle' 
+        
+        print '\nleft: %f ,front: %f ,right: %f ' %(self.directions['left'],self.directions['front'],self.directions['right'])
+        print '\nlinear: %f ,angular: %f ' %(self.current_speed.linear.x, self.current_speed.angular.z )
 
