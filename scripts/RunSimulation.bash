@@ -1,1 +1,1 @@
-roslaunch turtlebot3_gazebo turtlebot3_house.launch
+roslaunch turtlebot3_gazebo turtlebot3_office_v2.launch
