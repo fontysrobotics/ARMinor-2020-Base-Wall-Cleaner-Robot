@@ -5,7 +5,7 @@ from geometry_msgs.msg import Twist
 class PIDController:
 
 
-    def __init__(self):
+    def __init__(self,set_point):
         print("Initializing PIDController")
 
         self.error_sample_array = []
@@ -14,7 +14,7 @@ class PIDController:
         self.Kp = 5
         self.Ki = 0
         self.Kd = 15
-        self.SET_POINT = 0.40
+        self.SET_POINT = set_point
         self.previous_time = 0
         self.last_error = 0
         self.cummulated_error = 0

@@ -10,10 +10,20 @@ class CleaningRobot:
     def __init__(self):
         print("Initializing CleaningRobot")
 
-        self.PID_controller = PIDController()
-        self.cur_command = "start"
-        self.state = 0
-        self.previous_state = 0
+        self.FOLLOWING_DISTANCE_SET_POINT       = 0.40
+        self.OBSTACLE_DETECTION_SET_POINT_CLOSE = 0.35
+        self.OBSTACLE_DETECTION_SET_POINT_FAR   = 0.50
+        self.STUCK_DETECTION_DISTANCE           = 0.20
+        self.STUCK_MAX_COUNTER                  = 30
+
+        self.PID_controller                     = PIDController(self.FOLLOWING_DISTANCE_SET_POINT)
+        self.current_speed                      = Twist()
+        self.cur_command                        = "start"
+        self.previous_searching_time            = 0
+        self.state                              = 0
+        self.previous_state                     = 0
+        self.robot_stuck_counter                = 0
+
         self.state_desc = {
             0: 'idle',
             1: 'finding the wall',
@@ -30,12 +40,6 @@ class CleaningRobot:
             'right':0,
         }
 
-        self.WALL_DETECTION_DISTANCE = 0.7
-
-        self.STUCK_DETECTION_DISTANCE = 0.20
-        self.STUCK_MAX_COUNTER = 30
-        self.robot_stuck_counter = 0
-
         self.publisher = rospy.Publisher('/cmd_vel', Twist, queue_size =1 )
         self.subscriber = rospy.Subscriber('/scan',LaserScan, self.callback_laser_scan)
 
@@ -50,11 +54,25 @@ class CleaningRobot:
             'left':min(min(msg.ranges[54:90]),10),
         }
 
-    def wall_is_found(self):
-        if self.directions['right'] < self.WALL_DETECTION_DISTANCE or self.directions['fright'] < self.WALL_DETECTION_DISTANCE or self.directions['front1'] < self.WALL_DETECTION_DISTANCE or self.directions['front2'] < self.WALL_DETECTION_DISTANCE:
-            return True
-        
-        return False
+    def _wall_at_right(self,distance_set_point):
+
+        distance = min(self.directions['right'], self.directions['fright'])
+        return distance - distance_set_point <= 0
+
+    def _wall_at_front(self,distance_set_point):
+
+        distance = self.directions['front'] 
+        return distance - distance_set_point <= 0
+
+    def _wall_at_left(self,distance_set_point):
+
+        distance = min(self.directions['left'], self.directions['fleft'])
+        return distance - distance_set_point <= 0
+
+
+    def wall_is_found(self,distance_set_point):
+
+        return self._wall_at_right(distance_set_point) or self._wall_at_front(distance_set_point) or self._wall_at_left(distance_set_point)
 
     def robot_is_stuck(self):
 
@@ -73,8 +91,37 @@ class CleaningRobot:
         
         return False
 
+    def vortex_searching(self,increment_delay,search_speed_increment,search_speed_max):
+        current_time = time()
+
+        if current_time - self.previous_searching_time >= increment_delay:
+            self.current_speed.linear.x += search_speed_increment
+
+        self.current_speed.linear.x = min(self.current_speed.linear.x,search_speed_max)
+
+
+    def finding_wall(self,distance_set_point):
+        #detecting wall position
+        #act based on the position
+        if self._wall_at_right(distance_set_point):
+            #at far right, rotate right
+            self.current_speed.linear.x  = 0
+            self.current_speed.angular.z = -0.1
+
+        elif self._wall_at_front(distance_set_point):
+            #at far front, approaching slowly
+            self.current_speed.linear.x  = 0.05
+            self.current_speed.angular.z = 0          
+
+        elif self._wall_at_left(distance_set_point):
+            #at far left, rotate left
+            self.current_speed.linear.x  = 0
+            self.current_speed.angular.z = 0.1  
+        else:
+            #no obstacles, vortex searching
+            vortex_searching(10,0.1,1.0)
+
     def state_work(self):
-        robot_speed = Twist()
 
         #idle state
         if self.state == 0:
@@ -88,17 +135,17 @@ class CleaningRobot:
             if self.cur_command == "stop":
                 #change to idle
                 print '\nstop command received, to idle'
-                robot_speed.linear.x = 0
-                robot_speed.angular.z = 0
-                self.publisher.publish(robot_speed) 
+                self.current_speed.linear.x = 0
+                self.current_speed.angular.z = 0
+                self.publisher.publish(self.current_speed) 
                 self.state = 0
 
             
             elif self.robot_is_stuck():
                 print '\nrobot is stuck, to idle' 
-                robot_speed.linear.x = 0
-                robot_speed.angular.z = 0
-                self.publisher.publish(robot_speed)
+                self.current_speed.linear.x = 0
+                self.current_speed.angular.z = 0
+                self.publisher.publish(self.current_speed)
                 self.state = 0
 
             elif self.wall_is_found():
@@ -107,38 +154,37 @@ class CleaningRobot:
                 self.state = 2
             else:
                 print '\nfinding wall' 
-                robot_speed.linear.x = 0.1
-                robot_speed.angular.z = -0.5
-                self.publisher.publish(robot_speed)
-                print '\nfleft: %f ,front: %f ,fright: %f ' %(self.directions['front'], self.directions['fleft'], self.directions['fright'])
+                self.finding_wall(OBSTACLE_DETECTION_SET_POINT_FAR)
+                self.publisher.publish(self.current_speed)
+                #print '\nfleft: %f ,front: %f ,fright: %f ' %(self.directions['front'], self.directions['fleft'], self.directions['fright'])
 
         #follow wall state
         elif self.state == 2:
             if self.cur_command == "stop":
                 #change to idle
                 print '\nstop command received, to idle' 
-                robot_speed.linear.x = 0
-                robot_speed.angular.z = 0
-                self.publisher.publish(robot_speed)
+                self.current_speed.linear.x = 0
+                self.current_speed.angular.z = 0
+                self.publisher.publish(self.current_speed)
                 self.state = 0
 
             elif self.robot_is_stuck():
                 print '\nrobot is stuck, to idle' 
-                robot_speed.linear.x = 0
-                robot_speed.angular.z = 0
-                self.publisher.publish(robot_speed)
+                self.current_speed.linear.x = 0
+                self.current_speed.angular.z = 0
+                self.publisher.publish(self.current_speed)
                 self.state = 0
 
             else:
                 print '\nfollowing wall' 
                 distance_to_wall = min(self.directions['right'],self.directions['fright'],self.directions['front1'])
-                robot_speed = self.PID_controller.calculate_speed(distance_to_wall)
-                self.publisher.publish(robot_speed)
+                self.current_speed = self.PID_controller.calculate_speed(distance_to_wall)
+                self.publisher.publish(self.current_speed)
 
         else:
-            robot_speed.linear.x = 0
-            robot_speed.angular.z = 0
-            self.publisher.publish(robot_speed)
+            self.current_speed.linear.x = 0
+            self.current_speed.angular.z = 0
+            self.publisher.publish(self.current_speed) 
             self.state = 0
             print '\nunknown state, to idle' 
 
