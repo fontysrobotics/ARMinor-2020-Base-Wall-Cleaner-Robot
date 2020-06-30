@@ -175,7 +175,7 @@ class CleaningRobot:
                 print "In a corner"
                 self.state = STATES["TURNING"]
                 robot_speed.linear.x = 0
-                robot_speed.angular.z = 0
+                robot_speed.angular.z = 1 if self.cleaner_side == "right" else -1
                 self.publisher.publish(robot_speed)
                 self._sendStatusMessage(self.state_desc[self.state])
             else:
@@ -199,7 +199,10 @@ class CleaningRobot:
                 self._sendStatusMessage(self.state_desc[self.state])
 
         elif self.state == STATES["TURNING"]:
-            pass
+            if not self._is_in_corner():
+                self.state = STATES["FOLLOW_WALL"]
+                self._sendStatusMessage(self.state_desc[self.state])
+
 
         else:
             robot_speed.linear.x = 0
