@@ -6,10 +6,17 @@ from time import time
 
 from PIDController import PIDController
 
+STATES = {
+    'IDLE': 0,
+    'FIND_WALL': 1,
+    'FOLLOW_WALL': 2,
+    'STUCK': 3,
+    'TURNING': 4
+}
+
 class CleaningRobot:
     def __init__(self, webcontroller, photographer, cleaner_side="right"):
         print("Initializing CleaningRobot")
-
         self.webcontroller = webcontroller
         self.photographer = photographer
         self.cleaner_side = cleaner_side
@@ -19,9 +26,11 @@ class CleaningRobot:
         self.state = 0
         self.previous_state = 0
         self.state_desc = {
-            0: 'idle',
-            1: 'finding the wall',
-            2: 'follow the wall'
+            0: 'Idle',
+            1: 'Finding wall',
+            2: 'Following wall',
+            3: 'Stuck',
+            4: 'Turning'
         }
 
         self.directions = {
@@ -35,6 +44,7 @@ class CleaningRobot:
         }
 
         self.WALL_DETECTION_DISTANCE = 0.7
+        self.CORNER_CHECK_DISTANCE = 0.4
 
         self.STUCK_DETECTION_DISTANCE = 0.20
         self.STUCK_MAX_COUNTER = 30
@@ -70,8 +80,25 @@ class CleaningRobot:
             or self.directions['front1'] < self.WALL_DETECTION_DISTANCE\
             or self.directions['front2'] < self.WALL_DETECTION_DISTANCE:
                 return True
-        
         return False
+
+    def _is_in_corner(self):
+        if self.cleaner_side == "right":
+            if self.directions["right"] < self.WALL_DETECTION_DISTANCE\
+            and self.directions["fright"] < self.WALL_DETECTION_DISTANCE\
+            and self.directions["front1"] < self.WALL_DETECTION_DISTANCE\
+            and self.directions["front2"] < self.WALL_DETECTION_DISTANCE\
+            and not self.directions["left"] < self.WALL_DETECTION_DISTANCE:
+                return True
+        if self.cleaner_side == "left":
+            if self.directions["left"] < self.WALL_DETECTION_DISTANCE\
+            and self.directions["fleft"] < self.WALL_DETECTION_DISTANCE\
+            and self.directions["front1"] < self.WALL_DETECTION_DISTANCE\
+            and self.directions["front2"] < self.WALL_DETECTION_DISTANCE\
+            and not self.directions["right"] < self.WALL_DETECTION_DISTANCE:
+                return True
+        return False
+
 
     def robot_is_stuck(self):
 
@@ -102,61 +129,83 @@ class CleaningRobot:
             self._sendStatusMessage(self.state_desc[self.state])
 
         #idle state
-        if self.state == 0:
+        if self.state == STATES["IDLE"]:
             if self.cur_command == "start":
                 #start finding wall
                 print '\nstart command received to find wall' 
-                self.state = 1
+                self.state = STATES["FIND_WALL"]
                 self._sendStatusMessage(self.state_desc[self.state])
 
         #find wall state
-        elif self.state == 1:
+        elif self.state == STATES["FIND_WALL"]:
             if self.robot_is_stuck():
                 print '\nrobot is stuck, to idle' 
                 robot_speed.linear.x = 0
                 robot_speed.angular.z = 0
                 self.publisher.publish(robot_speed)
-                self.state = 0
+                self.cur_command = "stop"
+                self.state = STATES["STUCK"]
                 self._sendStatusMessage(self.state_desc[self.state])
+                self.photographer.CaptureImage()
 
             elif self.wall_is_found():
                 #change to follow wall
                 print '\nto follow wall' 
-                self.state = 2
+                self.state = STATES["FOLLOW_WALL"]
                 self._sendStatusMessage(self.state_desc[self.state])
             else:
                 print '\nfinding wall' 
                 robot_speed.linear.x = 0.1
                 robot_speed.angular.z = -0.5
                 self.publisher.publish(robot_speed)
-                print '\nfleft: %f ,front: %f ,fright: %f ' %(self.directions['front'], self.directions['fleft'], self.directions['fright'])
+                #print '\nfleft: %f ,front: %f ,fright: %f ' %(self.directions['front'], self.directions['fleft'], self.directions['fright'])
 
         #follow wall state
-        elif self.state == 2:
+        elif self.state == STATES["FOLLOW_WALL"]:
             if self.robot_is_stuck():
                 print '\nrobot is stuck, to idle' 
                 robot_speed.linear.x = 0
                 robot_speed.angular.z = 0
+                self.cur_command = "stop"
                 self.publisher.publish(robot_speed)
-                self.state = 0
+                self.state = STATES["STUCK"]
                 self._sendStatusMessage(self.state_desc[self.state])
-
+                self.photographer.CaptureImage()
+            elif self._is_in_corner():
+                print "In a corner"
+                self.state = STATES["TURNING"]
+                robot_speed.linear.x = 0
+                robot_speed.angular.z = 0
+                self.publisher.publish(robot_speed)
+                self._sendStatusMessage(self.state_desc[self.state])
             else:
                 print '\nfollowing wall' 
                 if self.cleaner_side == "right":
-                    distance_to_wall = min(self.directions['right'],self.directions['fright'],self.directions['front1'])
+                    distance_to_wall = self.directions["right"]
                 elif self.cleaner_side == "left":
-                    distance_to_wall = min(self.directions['left'],self.directions['fleft'],self.directions['front2'])
-                robot_speed = self.PID_controller.calculate_speed(distance_to_wall)
+                    distance_to_wall = self.directions["left"]
+
+                robot_speed.linear.x = 0.1
+                robot_speed.angular.z = self.PID_controller.GetPV(distance_to_wall)
+
                 if self.cleaner_side == "left":
                     robot_speed.angular.z = robot_speed.angular.z * -1
+
                 self.publisher.publish(robot_speed)
+
+        elif self.state == STATES["STUCK"]:
+            if self.cur_command == "start":
+                state = STATES["IDLE"]
+                self._sendStatusMessage(self.state_desc[self.state])
+
+        elif self.state == STATES["TURNING"]:
+            pass
 
         else:
             robot_speed.linear.x = 0
             robot_speed.angular.z = 0
             self.publisher.publish(robot_speed)
-            self.state = 0
+            self.state = STATES["IDLE"]
             print '\nunknown state, to idle' 
             self._sendStatusMessage(self.state_desc[self.state])
 

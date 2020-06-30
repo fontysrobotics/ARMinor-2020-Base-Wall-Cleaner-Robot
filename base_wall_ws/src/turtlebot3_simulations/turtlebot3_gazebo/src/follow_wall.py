@@ -21,7 +21,7 @@ def main():
     rospy.init_node('follow_wall')
     photographer = Photographer()
     webcontroller = WebController()
-    test_robot = CleaningRobot(webcontroller, photographer, cleaner_side="left")
+    test_robot = CleaningRobot(webcontroller, photographer, cleaner_side="right")
 
     rate = rospy.Rate(10)
 
