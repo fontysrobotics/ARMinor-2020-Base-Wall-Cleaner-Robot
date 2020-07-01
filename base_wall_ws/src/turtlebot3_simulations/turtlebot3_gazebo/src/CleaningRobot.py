@@ -140,7 +140,7 @@ class CleaningRobot:
     def finding_wall(self,distance_set_point):
         #detecting wall position
         #act based on the position
-
+        """
         if self._wall_at_front(distance_set_point):
             #at far front, approaching slowly
             self.current_speed.linear.x  = 0.1
@@ -155,6 +155,9 @@ class CleaningRobot:
             #at far left, rotate left
             self.current_speed.linear.x  = 0
             self.current_speed.angular.z = 0.1  
+        """
+        if self._is_in_corner():
+            self.state = STATES["TURNING"]
         else:
             #no obstacles, vortex searching
             self.vortex_searching(10,0.05,1.0)

@@ -8,7 +8,7 @@ class PIDController:
     def __init__(self,set_point):
         print("Initializing PIDController")
 
-        self.Kp = 2
+        self.Kp = 1
         self.Ki = 0
         self.Kd = 15
         self.SET_POINT = set_point
