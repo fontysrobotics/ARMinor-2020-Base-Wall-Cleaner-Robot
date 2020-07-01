@@ -228,8 +228,7 @@ class CleaningRobot:
                 elif self.cleaner_side == "left":
                     distance_to_wall = min(self.directions['left'],self.directions['fleft'],self.directions['front2'])
 
-                self.current_speed.angular.z = self.PID_controller.GetPV(distance_to_wall)
-                self.current_speed.linear.x = 0.1
+                self.current_speed = self.PID_controller.GetPV(distance_to_wall)
 
                 if self.cleaner_side == "left":
                     self.current_speed.angular.z = self.current_speed.angular.z * -1
