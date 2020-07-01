@@ -29,7 +29,7 @@ def main():
 
     while not rospy.is_shutdown():
         #cur_command = webcontroller.GetCommand()
-        test_robot.cur_command = webcontroller.GetCommand()
+        #test_robot.cur_command = webcontroller.GetCommand()
         test_robot.state_work()
 
         #if cur_command == "start":
