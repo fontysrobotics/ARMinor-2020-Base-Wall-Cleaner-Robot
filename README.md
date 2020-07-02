@@ -1,2 +1,3 @@
-# ar_base_wall
 base wall cleaner
+
+Documentation available in the documents directory
