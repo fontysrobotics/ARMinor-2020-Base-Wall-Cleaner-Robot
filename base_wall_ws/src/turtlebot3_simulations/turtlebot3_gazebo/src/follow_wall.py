@@ -21,19 +21,20 @@ def main():
     rospy.init_node('follow_wall')
     photographer = Photographer()
     webcontroller = WebController()
-    test_robot = CleaningRobot(webcontroller, photographer)
+    test_robot = CleaningRobot(webcontroller, photographer, cleaner_side="right")
 
     rate = rospy.Rate(10)
 
     cur_command = None
 
     while not rospy.is_shutdown():
-        cur_command = webcontroller.GetCommand()
+        #cur_command = webcontroller.GetCommand()
+        #test_robot.cur_command = webcontroller.GetCommand()
+        test_robot.state_work()
 
-        if cur_command == "start":
-            test_robot.state_work()
-        else:
-            continue
+        #if cur_command == "start":
+        #else:
+        #    continue
         
         rate.sleep()
 
