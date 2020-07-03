@@ -3,6 +3,7 @@
 ## Table of Contents
 
 - [Introduction](#intro)
+- [Videos](#videos)
 - [Installation for ROS machine](#install_ros)
 - [Installation for Web Server](#install_web)
 - [Running the ROS App](#run_ros)
@@ -18,7 +19,9 @@ The robot is placed in a random room. The camera and lidar are then turned on so
 
 More information on the implementation is available [Here](https://github.com/fontysrobotics/ARMinor-2020-Base-Wall-Cleaner-Robot/tree/master/documents/report.pdf)
 
-Videos of the robot working are available [Here](https://github.com/fontysrobotics/ARMinor-2020-Base-Wall-Cleaner-Robot/tree/master/documents/videos)
+<a name="videos"></a>
+## Videos
+Videos of the robot are available [Here](https://github.com/fontysrobotics/ARMinor-2020-Base-Wall-Cleaner-Robot/tree/master/documents/videos)
 
 ---
 
