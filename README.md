@@ -20,6 +20,9 @@ The robot is placed in a random room. The camera and lidar are then turned on so
 More information on the implementation is available [Here](https://github.com/fontysrobotics/ARMinor-2020-Base-Wall-Cleaner-Robot/tree/master/documents/report.pdf)
 
 <a name="videos"></a>
+
+This project is one of the deliverables of the ROSIN EP FREROS project. It was developed for the Adaptive Robotics minor of Fontys University of Applied Sciences which aims to be one of the best ROS and Robotics education center's in the Netherlands.
+
 ## Videos
 Videos of the robot are available [Here](https://github.com/fontysrobotics/ARMinor-2020-Base-Wall-Cleaner-Robot/tree/master/documents/videos)
 
