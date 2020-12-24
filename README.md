@@ -21,7 +21,7 @@ More information on the implementation is available [Here](https://github.com/fo
 
 <a name="videos"></a>
 
-**This project is one of the deliverables of the [ROSIN EP FREROS project] (https://www.rosin-project.eu/ftp/freros). It was developed for the Adaptive Robotics minor of Fontys University of Applied Sciences which aims to be one of the best ROS and Robotics education center's in the Netherlands.**
+**This project is one of the deliverables of the [ROSIN EP FREROS project](https://www.rosin-project.eu/ftp/freros). It was developed for the Adaptive Robotics minor of Fontys University of Applied Sciences which aims to be one of the best ROS and Robotics education center's in the Netherlands.**
 
 ## Videos
 Videos of the robot are available [Here](https://github.com/fontysrobotics/ARMinor-2020-Base-Wall-Cleaner-Robot/tree/master/documents/videos)
