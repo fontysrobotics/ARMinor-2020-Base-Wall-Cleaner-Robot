@@ -1,5 +1,5 @@
 attrs==19.3.0
-autobahn==19.11.2
+autobahn==20.12.3
 Automat==20.2.0
 cffi==1.14.0
 click==7.1.2
